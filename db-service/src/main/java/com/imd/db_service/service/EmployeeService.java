@@ -4,7 +4,10 @@ import com.imd.db_service.model.Employee;
 import com.imd.db_service.repository.EmployeeRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.stereotype.Service;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,7 +22,7 @@ public class EmployeeService {
         this.employeeRepository = employeeRepository;
     }
 
-    // Criar um novo Employee
+    @CachePut
     public Employee createEmployee(Employee employee) {
         return employeeRepository.save(employee);
     }
@@ -30,11 +33,13 @@ public class EmployeeService {
     }
 
     // Obter Employee por ID
+    @Cacheable(value = "employee", key = "#id")
     public Optional<Employee> getEmployeeById(Long id) {
         return employeeRepository.findById(id);
     }
 
     // Atualizar Employee
+    @CacheEvict(value = "employee", key = "#id")
     public Optional<Employee> updateEmployee(Long id, Employee employeeDetails) {
         return employeeRepository.findById(id).map(employee -> {
             employee.setName(employeeDetails.getName());
@@ -45,6 +50,7 @@ public class EmployeeService {
     }
 
     // Deletar Employee
+    @CacheEvict(value = "employee", key = "#id")
     public void deleteEmployee(Long id) {
         employeeRepository.deleteById(id);
     }
