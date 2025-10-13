@@ -54,4 +54,13 @@ public class EmployeeService {
     public void deleteEmployee(Long id) {
         employeeRepository.deleteById(id);
     }
+
+    @CacheEvict(value = "employee", key = "#employeeId")
+    public Employee saveReview(Long employeeId, String reviewText) {
+        Employee employee = employeeRepository.findById(employeeId)
+                .orElseThrow(() -> new RuntimeException("Employee not found with id: " + employeeId));
+
+        employee.setAiReview(reviewText);
+        return employeeRepository.save(employee);
+    }
 }

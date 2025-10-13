@@ -1,5 +1,6 @@
 package com.imd.db_service.controller;
 
+import com.imd.db_service.dto.ReviewDTO;
 import com.imd.db_service.model.Employee;
 import com.imd.db_service.service.EmployeeService;
 
@@ -56,5 +57,11 @@ public class EmployeeController {
     public ResponseEntity<Void> deleteEmployee(@PathVariable Long id) {
         employeeService.deleteEmployee(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{id}/review")
+    public ResponseEntity<Employee> addReviewToEmployee(@PathVariable Long id, @RequestBody ReviewDTO reviewDTO) {
+        Employee updatedEmployee = employeeService.saveReview(id, reviewDTO.getReviewText());
+        return ResponseEntity.ok(updatedEmployee);
     }
 }

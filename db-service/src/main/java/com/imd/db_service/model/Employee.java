@@ -1,9 +1,6 @@
 package com.imd.db_service.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 import java.io.Serializable;
 
@@ -17,6 +14,9 @@ public class Employee implements Serializable {
     private String name;
     private String position;
     private Double salary;
+
+    @Column(columnDefinition = "TEXT")
+    private String aiReview;
 
     public Employee() {}
 
@@ -58,5 +58,13 @@ public class Employee implements Serializable {
 
     public void setSalary(Double salary) {
         this.salary = salary;
+    }
+
+    public String getAiReview() {
+        return aiReview;
+    }
+
+    public void setAiReview(String aiReview) {
+        this.aiReview = aiReview;
     }
 }
