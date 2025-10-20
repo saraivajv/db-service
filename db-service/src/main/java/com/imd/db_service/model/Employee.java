@@ -1,21 +1,25 @@
 package com.imd.db_service.model;
 
-import jakarta.persistence.*;
+// Importações corretas para Spring Data R2DBC
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.Table;
 
 import java.io.Serializable;
 
-@Entity
+// A anotação @Entity do JPA é removida. @Table é opcional se o nome da tabela for igual ao da classe.
+@Table("employee")
 public class Employee implements Serializable {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id // Anotação do Spring Data, não do JPA
+    // A anotação @GeneratedValue é removida; o banco de dados gerencia o auto-incremento.
     private Long id;
 
     private String name;
     private String position;
     private Double salary;
 
-    @Column(columnDefinition = "TEXT")
+    @Column("aireview") // Anotação do Spring Data R2DBC
     private String aiReview;
 
     public Employee() {}
@@ -26,10 +30,13 @@ public class Employee implements Serializable {
         this.salary = salary;
     }
 
-    // Getters e Setters
 
     public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -39,10 +46,6 @@ public class Employee implements Serializable {
     public void setName(String name) {
         this.name = name;
     }
-
-	public void setId(Long id) {
-		this.id = id;
-	}
 
     public String getPosition() {
         return position;
