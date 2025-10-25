@@ -7,19 +7,17 @@ import org.springframework.data.relational.core.mapping.Table;
 
 import java.io.Serializable;
 
-// A anotação @Entity do JPA é removida. @Table é opcional se o nome da tabela for igual ao da classe.
 @Table("employee")
 public class Employee implements Serializable {
 
-    @Id // Anotação do Spring Data, não do JPA
-    // A anotação @GeneratedValue é removida; o banco de dados gerencia o auto-incremento.
+    @Id
     private Long id;
 
     private String name;
     private String position;
     private Double salary;
 
-    @Column("aireview") // Anotação do Spring Data R2DBC
+    @Column("aireview")
     private String aiReview;
 
     public Employee() {}
