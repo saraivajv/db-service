@@ -17,7 +17,7 @@ public class Employee implements Serializable {
     private String position;
     private Double salary;
 
-    @Column("aireview")
+    @Column("ai_review")
     private String aiReview;
 
     public Employee() {}
