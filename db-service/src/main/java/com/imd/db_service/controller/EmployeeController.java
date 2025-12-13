@@ -27,29 +27,4 @@ public class EmployeeController {
     public Flux<Employee> getAllEmployees() {
         return employeeService.getAllEmployees();
     }
-
-    @GetMapping("/{id}")
-    public Mono<ResponseEntity<Employee>> getEmployeeById(@PathVariable Long id) {
-        return employeeService.getEmployeeById(id)
-                .map(ResponseEntity::ok)
-                .defaultIfEmpty(ResponseEntity.notFound().build());
-    }
-
-    @PutMapping("/{id}")
-    public Mono<ResponseEntity<Employee>> updateEmployee(@PathVariable Long id, @RequestBody Employee employeeDetails) {
-        return employeeService.updateEmployee(id, employeeDetails)
-                .map(ResponseEntity::ok)
-                .defaultIfEmpty(ResponseEntity.notFound().build());
-    }
-
-    @DeleteMapping("/{id}")
-    public Mono<Void> deleteEmployee(@PathVariable Long id) {
-        return employeeService.deleteEmployee(id);
-    }
-
-    @PostMapping("/{id}/review")
-    public Mono<ResponseEntity<Employee>> addReviewToEmployee(@PathVariable Long id, @RequestBody ReviewDTO reviewDTO) {
-        return employeeService.saveReview(id, reviewDTO.getReviewText())
-                .map(ResponseEntity::ok);
-    }
 }

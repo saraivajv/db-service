@@ -1,8 +1,6 @@
 package com.imd.db_service.config;
 
-import com.imd.common.events.EmployeeApproved;
-import com.imd.common.events.EmployeeEvent;
-import com.imd.common.events.SalaryValidated;
+import com.imd.common.events.*;
 import com.imd.db_service.model.Employee;
 import com.imd.db_service.service.EmployeeService;
 import org.slf4j.Logger;
@@ -28,31 +26,31 @@ public class DbChoreographyConfig {
 
     @Bean
     public Function<Flux<EmployeeEvent>, Flux<EmployeeEvent>> persistEmployee() {
-        return flux -> flux
-                .flatMap(event -> {
-                    if (event instanceof SalaryValidated validatedEvent) {
-                        log.info("DB: Recebido SalaryValidated para: {}", validatedEvent.name());
+        return flux -> flux.flatMap(event -> {
+            if (event instanceof EquipmentAssigned req) {
 
-                        Employee entity = new Employee(
-                                validatedEvent.name(),
-                                validatedEvent.position(),
-                                validatedEvent.salary()
-                        );
+                // Cria usando o ID que veio do evento (req.eventId())
+                Employee entity = new Employee(
+                        req.eventId(),
+                        req.name(),
+                        "Dev",
+                        req.salary(),
+                        "APPROVED",
+                        null
+                );
 
-                        return employeeService.createEmployee(entity)
-                                .map(saved -> {
-                                    log.info("DB: Salvo com sucesso! ID: {}", saved.getId());
-                                    return (EmployeeEvent) new EmployeeApproved(
-                                            validatedEvent.eventId(),
-                                            saved.getId()
-                                    );
-                                })
-                                .onErrorResume(e -> {
-                                    log.error("DB: Erro ao salvar", e);
-                                    return Mono.empty();
-                                });
-                    }
-                    return Mono.empty();
-                });
+                return employeeService.createEmployee(entity)
+                        .map(saved -> (EmployeeEvent) new EmployeeApproved(
+                                req.eventId(),
+                                saved.getId()
+                        ))
+                        .onErrorResume(e -> {
+                            log.error("DB: Erro fatal. Solicitando compensação ao Inventory.", e);
+                            // Emite evento de falha para o Inventory devolver o item
+                            return Mono.just(new EmployeePersistenceFailed(req.eventId(), e.getMessage()));
+                        });
+            }
+            return Mono.empty();
+        });
     }
 }

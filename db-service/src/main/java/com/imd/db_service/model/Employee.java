@@ -1,39 +1,58 @@
 package com.imd.db_service.model;
 
-// Importações corretas para Spring Data R2DBC
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.domain.Persistable;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
-import java.io.Serializable;
+import java.util.UUID;
 
 @Table("employee")
-public class Employee implements Serializable {
+public class Employee implements Persistable<UUID> {
 
     @Id
-    private Long id;
+    private UUID id;
 
     private String name;
     private String position;
     private Double salary;
+    private String status;
 
-    @Column("ai_review")
-    private String aiReview;
+    @Column("reason_msg")
+    private String reasonMsg;
+
+    // Campo auxiliar para o Spring Data R2DBC saber se é INSERT ou UPDATE
+    @Transient // Importante: Avisa que isso NÃO é uma coluna no banco
+    private boolean newEmployee = false;
 
     public Employee() {}
 
-    public Employee(String name, String position, Double salary) {
+    public Employee(UUID id, String name, String position, Double salary, String status, String reasonMsg) {
+        this.id = id;
         this.name = name;
         this.position = position;
         this.salary = salary;
+        this.status = status;
+        this.reasonMsg = reasonMsg;
+        this.newEmployee = false;
     }
 
+    // --- Métodos da Interface Persistable ---
 
-    public Long getId() {
+    @Override
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    @Override
+    public boolean isNew() {
+        return newEmployee;
+    }
+
+    // --- Getters e Setters Padrão ---
+
+    public void setId(UUID id) {
         this.id = id;
     }
 
@@ -61,11 +80,19 @@ public class Employee implements Serializable {
         this.salary = salary;
     }
 
-    public String getAiReview() {
-        return aiReview;
+    public String getStatus() {
+        return status;
     }
 
-    public void setAiReview(String aiReview) {
-        this.aiReview = aiReview;
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getReasonMsg() {
+        return reasonMsg;
+    }
+
+    public void setReasonMsg(String reasonMsg) {
+        this.reasonMsg = reasonMsg;
     }
 }

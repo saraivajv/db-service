@@ -14,7 +14,7 @@ import reactor.core.publisher.Mono;
 import java.util.function.Function;
 
 @Configuration
-@Profile("orchestration") // <--- O SEGREDO: Só carrega na Orquestração
+@Profile("orchestration")
 public class DbOrchestrationConfig {
 
     private static final Logger log = LoggerFactory.getLogger(DbOrchestrationConfig.class);
@@ -29,15 +29,26 @@ public class DbOrchestrationConfig {
         return cmd -> {
             log.info("ORQUESTRAÇÃO: Recebido comando para salvar: {}", cmd.name());
 
-            // 1. Converte Comando -> Entidade
-            Employee entity = new Employee(cmd.name(), cmd.position(), cmd.salary());
+            // 1. Usar o construtor completo com UUID e Status
+            Employee entity = new Employee(
+                    cmd.sagaId(),
+                    cmd.name(),
+                    cmd.position(),
+                    cmd.salary(),
+                    "APPROVED",
+                    null
+            );
 
             // 2. Chama o Service
             return employeeService.createEmployee(entity)
                     .map(saved -> {
                         log.info("ORQUESTRAÇÃO: Comando executado. ID: {}", saved.getId());
-                        // 3. Responde ao Maestro
+                        // 3. Responde ao Maestro (Agora saved.getId() é UUID e o Record aceita UUID)
                         return new DbCompletionResult(cmd.sagaId(), saved.getId(), true);
+                    })
+                    .onErrorResume(e -> {
+                        log.error("ORQUESTRAÇÃO: Erro ao salvar", e);
+                        return Mono.just(new DbCompletionResult(cmd.sagaId(), null, false));
                     });
         };
     }
